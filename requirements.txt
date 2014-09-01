@@ -1,0 +1,5 @@
+Sphinx==1.2.2
+ipython==2.1.0
+xlrd==0.9.3
+click==3.2.0
+flask
