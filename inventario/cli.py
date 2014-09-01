@@ -1,5 +1,6 @@
 import os
 import click
+from alembic import context
 
 from . import app, db
 from .parsing import ID, TITLE, POS, Book, Page
@@ -66,3 +67,22 @@ def diff(filename, first_page, second_page):
     for id_ in unchanged:
         click.secho('{}\t{}\t|\t{}'.format(
             id_, old_page.entries_by_id[id_][0][TITLE], new_page.entries_by_id[id_][0][TITLE]))
+
+
+def _here():
+    return os.path.dirname(os.path.realpath(__file__))
+
+
+@main.command()
+@click.argument('argv', nargs=-1)
+def database(argv):
+    import alembic.config
+
+    click.secho('Database: ' + app.config['SQLALCHEMY_DATABASE_URI'], fg='yellow')
+
+    config = alembic.config.Config()
+    config.set_main_option('script_location', os.path.join(_here(), 'migrations'))
+    config.set_main_option('sqlalchemy.url', app.config['SQLALCHEMY_DATABASE_URI'])
+
+    cmd = alembic.config.CommandLine('inv database')
+    cmd.run_cmd(config, cmd.parser.parse_args(argv))
