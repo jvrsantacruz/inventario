@@ -1,14 +1,22 @@
+import os
 import click
 
-from .parsing import ID, TITLE, open_book, parse_rows, get_entries_by_id, get_diff, Book, Page
+from . import app, db
+from .parsing import ID, TITLE, POS, Book, Page
 
 
 @click.group()
 def main():
+    click.secho('Configuration file: '
+                + click.format_filename(app.config.path), fg='yellow')
+
+
+@main.group()
+def data():
     pass
 
 
-@main.command()
+@data.command()
 @click.argument('filename', type=click.Path(exists=True))
 @click.argument('page', type=int, default=None, required=False)
 def list(filename, page=None):
@@ -16,21 +24,19 @@ def list(filename, page=None):
 
     book = Book(filename)
 
-    book, pages = open_book(filename)
-
     for page in book.pages:
         click.echo('\nParsing page n: {} name: {}  elements: {}\n'
                    .format(page.n, page.name, len(page.entries)))
-        for n, data in enumerate(parse_rows(sheet)):
-            click.echo('{}\t{}\t{}'.format(n, data[ID], data))
+        for data in page.entries:
+            click.echo('{}\t{}\t{}'.format(data[POS], data[ID], data))
 
 
-@main.command()
+@data.command()
 @click.argument('filename', type=click.Path(exists=True))
 @click.argument('first_page', type=int, default=0, required=False)
 @click.argument('second_page', type=int, default=None, required=False)
 def diff(filename, first_page, second_page):
-    click.echo('Reading: ' + click.format_filename(filename))
+    click.secho('Reading: ' + click.format_filename(filename))
 
     book = Book(filename)
 
