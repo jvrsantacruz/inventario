@@ -3,7 +3,6 @@ import click
 from alembic import context
 
 from . import app, db
-from .parsing import ID, TITLE, POS, Book, Page
 
 
 @click.group()
@@ -21,6 +20,8 @@ def data():
 @click.argument('filename', type=click.Path(exists=True))
 @click.argument('page', type=int, default=None, required=False)
 def list(filename, page=None):
+    from .parsing import Book
+
     click.echo('Reading: ' + click.format_filename(filename))
 
     book = Book(filename)
@@ -29,7 +30,7 @@ def list(filename, page=None):
         click.echo('\nParsing page n: {} name: {}  elements: {}\n'
                    .format(page.n, page.name, len(page.entries)))
         for data in page.entries:
-            click.echo('{}\t{}\t{}'.format(data[POS], data[ID], data))
+            click.echo('{}\t{}\t{}'.format(data['pos'], data['book_id'], data))
 
 
 @data.command()
@@ -37,6 +38,8 @@ def list(filename, page=None):
 @click.argument('first_page', type=int, default=0, required=False)
 @click.argument('second_page', type=int, default=None, required=False)
 def diff(filename, first_page, second_page):
+    from .parsing import Book
+
     click.secho('Reading: ' + click.format_filename(filename))
 
     book = Book(filename)
@@ -57,16 +60,16 @@ def diff(filename, first_page, second_page):
 
     click.echo('\nAdded: {}'.format(added))
     for id_ in added:
-        click.secho('{}\t{}'.format(id_, new_page.entries_by_id[id_][0][TITLE]), fg='green')
+        click.secho('{}\t{}'.format(id_, new_page.entries_by_id[id_][0]['title']), fg='green')
 
     click.echo('\nRemoved: {}'.format(removed))
     for id_ in removed:
-        click.secho('{}\t{}'.format(id_, old_page.entries_by_id[id_][0][TITLE]), fg='red')
+        click.secho('{}\t{}'.format(id_, old_page.entries_by_id[id_][0]['title']), fg='red')
 
     click.echo('\nUnchanged: {}'.format(removed))
     for id_ in unchanged:
         click.secho('{}\t{}\t|\t{}'.format(
-            id_, old_page.entries_by_id[id_][0][TITLE], new_page.entries_by_id[id_][0][TITLE]))
+            id_, old_page.entries_by_id[id_][0]['title'], new_page.entries_by_id[id_][0]['title']))
 
 
 def _here():

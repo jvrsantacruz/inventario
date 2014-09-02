@@ -3,13 +3,28 @@ import xlrd
 from collections import defaultdict
 
 ID = 'ID'
-POS = 'POS'
 TITLE = 'TEMA'
 LANG = 'IDIOMA'
-SUPPORT = 'SOPORTE'
+FORMAT = 'SOPORTE'
 ERROR = 'ERROR DE COPIA'
 UNKNOWN = 'NO IDENTIFICADO'
 REPEATED = 'SE REPITE EN EL INVENTARIO'
+REPEATED2 = 'REPETIDO EN EL INVENTARIO'
+
+
+def translate_header(header):
+    translation_table = {
+        ID: 'book_id',
+        TITLE: 'title',
+        LANG: 'lang',
+        FORMAT: 'format',
+        ERROR: 'error',
+        UNKNOWN: 'identified',
+        REPEATED: 'repeated',
+        REPEATED2: 'repeated'
+    }
+
+    return [translation_table.get(h, h) for h in header]
 
 
 def parse_value(cell):
@@ -33,13 +48,13 @@ def parse_row_data(header, row):
 
 
 def parse_rows(sheet):
-    header = parse_row(sheet.row(0))
+    header = translate_header(parse_row(sheet.row(0)))
 
     nparsed = 0
     for line in range(1, sheet.nrows):
         try:
             data = parse_row_data(header, sheet.row(line))
-            data[POS] = nparsed
+            data['pos'] = nparsed
             yield data
         except Exception as error:
             raise Exception('Error while parsing "{}" line "{}": {}'
@@ -52,7 +67,7 @@ def get_entries_by_id(entries):
     d = defaultdict(list)
 
     for data in entries:
-        d[data[ID]].append(data)
+        d[data['book_id']].append(data)
 
     return d
 
