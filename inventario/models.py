@@ -1,7 +1,27 @@
 from . import db
 
 
-class Book(db.Model):
+class Model(db.Model):
+    __abstract__ = True
+
+    @classmethod
+    def get_or_create(cls, id, **kwargs):
+        return cls.query.get(id) or cls(id=id, **kwargs)
+
+    @classmethod
+    def find(cls, **filters):
+        return cls.query.filter(**filters)
+
+    @classmethod
+    def find_one(cls, **filters):
+        return self.find(**filters).first()
+
+    @classmethod
+    def find_or_create(cls, data, **filters):
+        return self.find_one(**filters) or cls(**data)
+
+
+class Book(Model):
     __tablename__ = 'books'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -11,21 +31,20 @@ class Book(db.Model):
         return '<Book %r>' % (self.id)
 
 
-class Listing(db.Model):
+class Listing(Model):
     __tablename__ = 'listings'
 
     id = db.Column(db.Integer, primary_key=True)
-    year = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Listing %r>' % (self.id)
 
 
-class BookEntry(db.Model):
+class BookEntry(Model):
     __tablename__ = 'book_entries'
 
     id = db.Column(db.Integer, primary_key=True)
-
     title = db.Column(db.Unicode(2048), index=True)
     pos = db.Column(db.Integer)
     lang = db.Column(db.Unicode(128))
