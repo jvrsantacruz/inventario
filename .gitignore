@@ -5,3 +5,5 @@
 .coverage*
 .ropeproject
 *.xls
+vars
+db.sqlite
