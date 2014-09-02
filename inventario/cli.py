@@ -83,7 +83,7 @@ def database(argv):
 
     click.secho('Database: ' + app.config['SQLALCHEMY_DATABASE_URI'], fg='yellow')
 
-    config = alembic.config.Config()
+    config = alembic.config.Config(file_=os.path.join(_here(), 'migrations/alembic.ini'))
     config.set_main_option('script_location', os.path.join(_here(), 'migrations'))
     config.set_main_option('sqlalchemy.url', app.config['SQLALCHEMY_DATABASE_URI'])
 
