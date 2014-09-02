@@ -84,10 +84,7 @@ def load(filename):
         listing = models.Listing(id=page.n, year=page.n)
         for entry in page.entries:
             book = models.Book.get_or_create(
-                id=entry['book_id'], identified=not entry.pop('identified'))
-
-            entry['error'] = bool(entry['error'])
-            del entry['repeated']
+                id=entry['book_id'], identified=entry.pop('identified'))
 
             listing.entries.append(models.BookEntry(book=book, **entry))
 
