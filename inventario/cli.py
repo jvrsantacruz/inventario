@@ -115,6 +115,36 @@ def data_list():
         click.secho('No data')
 
 
+@data.command()
+def backout():
+    """Delete all previously loaded data"""
+    from .models import BookEntry, Book, Listing
+
+    entries, books, listings =\
+     BookEntry.query.count(), Book.query.count(), Listing.query.count()
+
+    if not entries and not books and not listings:
+        click.secho("No data to delete", fg='green')
+        return
+
+    click.secho("""Deleting all imported data:
+{} Listings
+{} Books
+{} BookEntries
+""".format(listings, books, entries), fg='red')
+
+    if not click.confirm('Are you sure?'):
+        click.secho('Aborted', fg='red')
+        return
+
+    BookEntry.query.delete()
+    Listing.query.delete()
+    Book.query.delete()
+    db.session.commit()
+
+    click.secho('Deleted', fg='green')
+
+
 def _here():
     return os.path.dirname(os.path.realpath(__file__))
 
