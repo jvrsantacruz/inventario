@@ -32,5 +32,11 @@ class BookEntry(db.Model):
     format = db.Column(db.Unicode(128))
     error = db.Column(db.Boolean)
 
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
     book = db.relationship('Book', backref='entries', lazy='joined')
-    listing = db.relationship('Listing', backref='entries', lazy='dynamic')
+
+    listing_id = db.Column(db.Integer, db.ForeignKey('listings.id'))
+    listing = db.relationship('Listing', backref='entries', lazy='joined')
+
+    def __repr__(self):
+        return '<BookEntry %r for %r in %r>' % (self.id, self.book, self.listing)
