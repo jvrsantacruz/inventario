@@ -98,6 +98,23 @@ def load(filename):
         db.session.commit()
 
 
+@data.command('loaded')
+def data_list():
+    """List all database data"""
+    from .models import Listing
+
+    n = 0
+    for listing in Listing.query:
+        for entry in listing.entries:
+            n += 1
+            click.echo(entry)
+
+    if n:
+        click.secho('Total {} entries'.format(n))
+    else:
+        click.secho('No data')
+
+
 def _here():
     return os.path.dirname(os.path.realpath(__file__))
 
