@@ -18,7 +18,9 @@ def upgrade():
     op.create_table(
         'books',
         sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('identified', sa.Boolean(), nullable=False)
+        sa.Column('identified', sa.Boolean(), nullable=False),
+        sa.Column('first_entry_id', sa.Integer(), sa.ForeignKey('book_entries.id'), nullable=True),
+        sa.Column('last_entry_id', sa.Integer(), sa.ForeignKey('book_entries.id'), nullable=True)
     )
 
     op.create_table(
@@ -36,7 +38,7 @@ def upgrade():
         sa.Column('format', sa.Unicode(128)),
         sa.Column('error', sa.Boolean()),
 
-        sa.Column('bookd_id', sa.Integer(), sa.ForeignKey('books.id'), nullable=False),
+        sa.Column('book_id', sa.Integer(), sa.ForeignKey('books.id'), nullable=False),
         sa.Column('listing_id', sa.Integer(), sa.ForeignKey('listings.id'), nullable=False)
     )
 
