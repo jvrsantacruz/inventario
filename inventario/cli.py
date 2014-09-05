@@ -86,7 +86,11 @@ def load(filename):
             book = models.Book.get_or_create(
                 id=entry['book_id'], identified=entry.pop('identified'))
 
-            listing.entries.append(models.BookEntry(book=book, **entry))
+            book_entry = models.BookEntry(listing=listing, book=book, **entry)
+
+            book.last_entry = book_entry
+            if not book.first_entry:
+                book.first_entry = book_entry
 
         click.secho('Loaded {} with {} entries'.format(
             listing, len(listing.entries)), fg='green')

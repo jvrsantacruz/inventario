@@ -1,5 +1,7 @@
 from . import db
 
+from sqlalchemy.orm import backref
+
 
 class Model(db.Model):
     __abstract__ = True
@@ -27,6 +29,16 @@ class Book(Model):
     id = db.Column(db.Integer, primary_key=True)
     identified = db.Column(db.Boolean, nullable=False)
 
+    first_entry_id = db.Column(db.Integer, db.ForeignKey('book_entries.id'))
+    first_entry = db.relationship('BookEntry',
+        backref=backref('is_first_entry', uselist=False),
+        foreign_keys=[first_entry_id], post_update=True)
+
+    last_entry_id = db.Column(db.Integer, db.ForeignKey('book_entries.id'))
+    last_entry = db.relationship('BookEntry',
+        backref=backref('is_last_entry', uselist=False),
+        foreign_keys=[last_entry_id], post_update=True)
+
     def __repr__(self):
         return '<Book %r>' % (self.id)
 
@@ -52,10 +64,10 @@ class BookEntry(Model):
     error = db.Column(db.Boolean)
 
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
-    book = db.relationship('Book', backref='entries', lazy='joined')
+    book = db.relationship(Book, backref='entries', lazy='joined', foreign_keys=[book_id])
 
     listing_id = db.Column(db.Integer, db.ForeignKey('listings.id'))
-    listing = db.relationship('Listing', backref='entries', lazy='joined')
+    listing = db.relationship(Listing, backref='entries', lazy='joined')
 
     def __repr__(self):
         return '<BookEntry %r for %r in %r>' % (self.id, self.book, self.listing)
