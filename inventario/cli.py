@@ -72,9 +72,9 @@ def diff(filename, first_page, second_page):
             id_, old_page.entries_by_id[id_][0]['title'], new_page.entries_by_id[id_][0]['title']))
 
 
-@data.command()
+@data.command('load')
 @click.argument('filename', type=click.Path(exists=True))
-def load(filename):
+def data_load(filename):
     """Load data from excel file"""
     from . import parsing, models
 
@@ -84,30 +84,33 @@ def load(filename):
         listing = models.Listing(id=page.n, year=page.n)
         for entry in page.entries:
             book = models.Book.get_or_create(
-                id=entry['book_id'], identified=not entry.pop('identified'))
+                id=entry['book_id'], identified=entry.pop('identified'))
 
-            entry['error'] = bool(entry['error'])
-            del entry['repeated']
+            book_entry = models.BookEntry(listing=listing, book=book, **entry)
 
-            listing.entries.append(models.BookEntry(book=book, **entry))
+            book.last_entry = book_entry
+            if not book.first_entry:
+                book.first_entry = book_entry
 
         click.secho('Loaded {} with {} entries'.format(
             listing, len(listing.entries)), fg='green')
 
         db.session.add(listing)
-        db.session.commit()
+    db.session.commit()
 
 
-@data.command('loaded')
-def data_list():
+@data.command('view')
+def data_view():
     """List all database data"""
+    import json
     from .models import Listing
 
     n = 0
     for listing in Listing.query:
         for entry in listing.entries:
             n += 1
-            click.echo(entry)
+            click.echo({k: v for k, v in entry.__dict__.items()
+                        if not k.startswith('_')})
 
     if n:
         click.secho('Total {} entries'.format(n))

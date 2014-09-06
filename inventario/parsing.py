@@ -47,13 +47,20 @@ def parse_row_data(header, row):
     return dict(zip(header, parse_row(row)))
 
 
+def transform_values(entry):
+    entry['identified'] = not entry['identified']
+    entry['error'] = bool(entry['error'])
+    del entry['repeated']
+    return entry
+
+
 def parse_rows(sheet):
     header = translate_header(parse_row(sheet.row(0)))
 
     nparsed = 0
     for line in range(1, sheet.nrows):
         try:
-            data = parse_row_data(header, sheet.row(line))
+            data = transform_values(parse_row_data(header, sheet.row(line)))
             data['pos'] = nparsed
             yield data
         except Exception as error:
