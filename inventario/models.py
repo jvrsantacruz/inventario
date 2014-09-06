@@ -27,7 +27,7 @@ class Book(Model):
     __tablename__ = 'books'
 
     id = db.Column(db.Integer, primary_key=True)
-    identified = db.Column(db.Boolean, nullable=False)
+    identified = db.Column(db.Boolean)
 
     first_entry_id = db.Column(db.Integer, db.ForeignKey('book_entries.id'))
     first_entry = db.relationship('BookEntry',

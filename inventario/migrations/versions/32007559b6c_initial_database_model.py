@@ -18,7 +18,7 @@ def upgrade():
     op.create_table(
         'books',
         sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('identified', sa.Boolean(), nullable=False),
+        sa.Column('identified', sa.Boolean(), nullable=True),
         sa.Column('first_entry_id', sa.Integer(), sa.ForeignKey('book_entries.id'), nullable=True),
         sa.Column('last_entry_id', sa.Integer(), sa.ForeignKey('book_entries.id'), nullable=True)
     )
