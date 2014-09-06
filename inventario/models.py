@@ -1,6 +1,7 @@
 from . import db
 
 from sqlalchemy.orm import backref
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class Model(db.Model):
@@ -68,6 +69,11 @@ class BookEntry(Model):
 
     listing_id = db.Column(db.Integer, db.ForeignKey('listings.id'))
     listing = db.relationship(Listing, backref='entries', lazy='joined')
+
+    @hybrid_property
+    def repeated(self):
+        return self.query.filter_by(
+            listing_id=self.listing_id, book_id=self.book_id).count() > 1
 
     def __repr__(self):
         return '<BookEntry %r for %r in %r>' % (self.id, self.book, self.listing)
