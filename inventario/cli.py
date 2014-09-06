@@ -96,7 +96,7 @@ def data_load(filename):
             listing, len(listing.entries)), fg='green')
 
         db.session.add(listing)
-        db.session.commit()
+    db.session.commit()
 
 
 @data.command('view')
