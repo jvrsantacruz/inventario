@@ -127,6 +127,19 @@ def _limit_text(text, limit=100):
     return text
 
 
+def _graph_entry_color(entry):
+    last_listing_id = 3
+
+    # is a book that was lost at some point
+    # its listed in a previous listing but
+    # it does not appear in the next
+    is_lost_entry = (entry.listing_id != last_listing_id
+                     and len(entry.book.entries) != 1
+                     and entry.id == entry.book.last_entry_id)
+
+    return '#ff0000' if is_lost_entry else ''
+
+
 @data.command('graph')
 def graph():
     """Renders a graph of all data"""
@@ -149,31 +162,32 @@ def graph():
     entries = BookEntry.query.order_by(
         BookEntry.book_id, BookEntry.listing_id)
 
+    # entries for a book in all listings
     entries_by_book = groupby(entries, lambda e: e.book_id)
     for book_id, book_entries in entries_by_book:
 
-        previous = []
+        previous_listing_book_entries = []
         entries_by_listing = groupby(book_entries, lambda e: e.listing_id)
 
+        # entries for book in a listing
         for listing_id, listing_book_entries in entries_by_listing:
             listing_book_entries = list(iter(listing_book_entries))
 
             for entry in listing_book_entries:
-                attributes = dict(
+                graph.node(
                     name=str(entry.id),
-                    xlabel=str(book_id),
+                    xlabel=str(entry.book_id),
+                    color=_graph_entry_color(entry),
                     label=_wrap_text(_limit_text(entry.title, 100), 15)
                 )
-                graph.node(**attributes)
 
-                for prev in previous:
-                    attributes = dict(
+                for prev in previous_listing_book_entries:
+                    graph.edge(
                         tail_name=str(prev.id),
-                        head_name=str(entry.id),
+                        head_name=str(entry.id)
                     )
-                    graph.edge(**attributes)
 
-            previous = listing_book_entries
+            previous_listing_book_entries = listing_book_entries
 
     click.echo(graph.source[:-1])
 
