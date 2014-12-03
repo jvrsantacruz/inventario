@@ -138,17 +138,17 @@ def _is_lost_entry(entry):
     """
     last_listing_id = 3
 
-    return (entry.listing_id != last_listing_id
-            and len(entry.book.entries) != 1
-            and entry.id == entry.book.last_entry_id)
+    return (entry.is_last
+            and entry.listing_id != last_listing_id
+            and len(entry.book.entries) != 1)
 
 
 def _graph_entry_color(entry):
-    if _is_first_entry(entry):
+    if entry.is_first:
         return '#00ff00'  # green
     elif _is_lost_entry(entry):
         return '#ff0000'  # red
-    elif entry.repeated:
+    elif entry.is_repeated:
         return '#0000ff'  # blue
     else:
         return ''  # no color

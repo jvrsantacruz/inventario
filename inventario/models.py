@@ -17,11 +17,11 @@ class Model(db.Model):
 
     @classmethod
     def find_one(cls, **filters):
-        return self.find(**filters).first()
+        return cls.find(**filters).first()
 
     @classmethod
     def find_or_create(cls, data, **filters):
-        return self.find_one(**filters) or cls(**data)
+        return cls.find_one(**filters) or cls(**data)
 
 
 class Book(Model):
@@ -71,9 +71,19 @@ class BookEntry(Model):
     listing = db.relationship(Listing, backref='entries', lazy='joined')
 
     @hybrid_property
+    def is_first(self):
+        return self.id == self.book.first_entry_id
+
+    @hybrid_property
+    def is_last(self):
+        return self.id == self.book.last_entry_id
+
+    @hybrid_property
     def repeated(self):
         return self.query.filter_by(
             listing_id=self.listing_id, book_id=self.book_id).count() > 1
+
+    is_repeated = repeated
 
     def __repr__(self):
         return '<BookEntry %r for %r in %r>' % (self.id, self.book, self.listing)
