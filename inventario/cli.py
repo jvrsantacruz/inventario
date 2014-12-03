@@ -116,6 +116,66 @@ def data_view():
         click.secho('No data')
 
 
+def _wrap_text(text, linelen=10):
+    return '\\n'.join(text[n:n + linelen]
+        for n in range(0, len(text), linelen))
+
+
+def _limit_text(text, limit=100):
+    if len(text) > limit:
+        return text[:limit - 3] + '...'
+    return text
+
+
+@data.command('graph')
+def graph():
+    """Renders a graph of all data"""
+    from itertools import groupby
+    from graphviz import Digraph
+    from .models import BookEntry, Listing
+
+    graph = Digraph(comment='Inventarios')
+    graph.graph_attr['rankdir'] = 'LR'
+    graph.graph_attr['ratio'] = '15'
+
+    graph.node_attr['fontsize'] = '50'
+    graph.node_attr['shape'] = 'record'
+    graph.node_attr['height'] = '3'
+    graph.node_attr['width'] = '5'
+    graph.node_attr['margin'] = '0.2,0.2'
+
+    graph.edge_attr['arrowsize'] = '2.5'
+
+    entries = BookEntry.query.order_by(
+        BookEntry.book_id, BookEntry.listing_id)
+
+    entries_by_book = groupby(entries, lambda e: e.book_id)
+    for book_id, book_entries in entries_by_book:
+
+        previous = []
+        entries_by_listing = groupby(book_entries, lambda e: e.listing_id)
+
+        for listing_id, listing_book_entries in entries_by_listing:
+            listing_book_entries = list(iter(listing_book_entries))
+
+            for entry in listing_book_entries:
+                entry_text = _wrap_text(_limit_text(entry.title, 100), 15)
+                graph.node(str(entry.id), entry_text, xlabel=(str(book_id)))
+
+                for prev in previous:
+                    graph.edge(str(prev.id), str(entry.id))
+
+            previous = listing_book_entries
+
+    click.echo(graph.source[:-1])
+
+    for listing in Listing.query:
+        entries = (str(entry.id) for entry in listing.entries)
+        click.echo('{rank=same; %s}' % ' '.join(entries))
+
+    click.echo('}')
+
+
 @data.command()
 def backout():
     """Delete all previously loaded data"""
