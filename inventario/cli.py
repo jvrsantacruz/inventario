@@ -148,6 +148,8 @@ def _graph_entry_color(entry):
         return '#00ff00'  # green
     elif _is_lost_entry(entry):
         return '#ff0000'  # red
+    elif entry.repeated:
+        return '#0000ff'  # blue
     else:
         return ''  # no color
 
