@@ -1,6 +1,5 @@
 import os
 import click
-from alembic import context
 
 from . import app, db
 
@@ -16,10 +15,10 @@ def data():
     pass
 
 
-@data.command()
+@data.command('list')
 @click.argument('filename', type=click.Path(exists=True))
 @click.argument('page', type=int, default=None, required=False)
-def list(filename, page=None):
+def list_cmd(filename, page=None):
     from .parsing import Book
 
     click.echo('Reading: ' + click.format_filename(filename))
@@ -102,7 +101,6 @@ def data_load(filename):
 @data.command('view')
 def data_view():
     """List all database data"""
-    import json
     from .models import Listing
 
     n = 0
