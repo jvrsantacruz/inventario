@@ -127,17 +127,29 @@ def _limit_text(text, limit=100):
     return text
 
 
-def _graph_entry_color(entry):
+def _is_first_entry(entry):
+    return entry.id == entry.book.first_entry_id
+
+
+def _is_lost_entry(entry):
+    """A book that was lost at some point
+    its listed in a previous listing but
+    it does not appear in the next
+    """
     last_listing_id = 3
 
-    # is a book that was lost at some point
-    # its listed in a previous listing but
-    # it does not appear in the next
-    is_lost_entry = (entry.listing_id != last_listing_id
-                     and len(entry.book.entries) != 1
-                     and entry.id == entry.book.last_entry_id)
+    return (entry.listing_id != last_listing_id
+            and len(entry.book.entries) != 1
+            and entry.id == entry.book.last_entry_id)
 
-    return '#ff0000' if is_lost_entry else ''
+
+def _graph_entry_color(entry):
+    if _is_first_entry(entry):
+        return '#00ff00'  # green
+    elif _is_lost_entry(entry):
+        return '#ff0000'  # red
+    else:
+        return ''  # no color
 
 
 @data.command('graph')
