@@ -164,6 +164,17 @@ def graph():
     graph = Digraph(comment='Inventarios')
     graph.graph_attr['rankdir'] = 'LR'
     graph.graph_attr['ratio'] = '15'
+    graph.graph_attr['labelloc'] = 'top'
+    graph.graph_attr['labeljust'] = 'left'
+    graph.graph_attr['fontsize'] = '60'
+    graph.graph_attr['label'] = '''<
+    <TABLE CELLPADDING="15">
+      <TR><TD><B><FONT POINT-SIZE="90">Leyenda</FONT></B></TD></TR>
+      <TR><TD><I><FONT COLOR="#00ff00">Adquirido</FONT></I></TD></TR>
+      <TR><TD><I><FONT COLOR="#ff0000">Perdido</FONT></I></TD></TR>
+      <TR><TD><I><FONT COLOR="#0000ff">Dudoso</FONT></I></TD></TR>
+    </TABLE>
+    >'''
 
     graph.node_attr['fontsize'] = '50'
     graph.node_attr['shape'] = 'record'
