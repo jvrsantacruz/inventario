@@ -159,11 +159,19 @@ def graph():
             listing_book_entries = list(iter(listing_book_entries))
 
             for entry in listing_book_entries:
-                entry_text = _wrap_text(_limit_text(entry.title, 100), 15)
-                graph.node(str(entry.id), entry_text, xlabel=(str(book_id)))
+                attributes = dict(
+                    name=str(entry.id),
+                    xlabel=str(book_id),
+                    label=_wrap_text(_limit_text(entry.title, 100), 15)
+                )
+                graph.node(**attributes)
 
                 for prev in previous:
-                    graph.edge(str(prev.id), str(entry.id))
+                    attributes = dict(
+                        tail_name=str(prev.id),
+                        head_name=str(entry.id),
+                    )
+                    graph.edge(**attributes)
 
             previous = listing_book_entries
 
