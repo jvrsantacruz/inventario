@@ -1,0 +1,1 @@
+inv data graph | tail -n +2 > Digraph.gv && dot Digraph.gv -o Digraph.gv.pdf -Tpdf && go Digraph.gv.pdf
